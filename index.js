@@ -4,8 +4,8 @@ const cors = require('cors');
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config();
-const jwt= require('jsonwebtoken');
-const ACCESS_TOKEN= process.env.ACCESS_TOKEN;
+const jwt = require('jsonwebtoken');
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
 
 
 //Middlewares
@@ -40,11 +40,33 @@ const run = async () => {
             }
         });
 
-        app.post('/jwt', async(req, res)=>{
-            const email= req.body.email;
-            const token= jwt.sign({email}, ACCESS_TOKEN, {expiresIn: "1h"});
-            res.send({token});
+        app.post('/jwt', async (req, res) => {
+            const email = req.body.email;
+            const token = jwt.sign({ email }, ACCESS_TOKEN, { expiresIn: "1h" });
+            res.send({ token });
         })
+
+        app.get('/emailStatus', async (req, res) => {
+            const user = req.query.user;
+            const result = await Users.findOne({ email: user });
+
+            if (result !== null) {
+                if (!result?.emailStatus) {
+                    const filter = { email: user };
+                    const updateDoc = {
+                        $set: {
+                            emailStatus: true
+                        }
+                    };
+                    const option = { upsert: true };
+                    const updateResult = await Users.updateOne(filter, updateDoc, option);
+                }
+            }
+
+            res.send({ emailStatus: result?.emailStatus });
+        });
+
+
     }
     finally {
 
