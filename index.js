@@ -56,7 +56,7 @@ const run = async () => {
     try {
         app.post('/user', async (req, res) => {
             const userData = req.body;
-            const checkEmail = await Users.find({ email: userData }).toArray();
+            const checkEmail = await Users.find({ email: userData.email }).toArray();
             if (checkEmail.length === 0) {
                 const result = await Users.insertOne(userData);
                 return res.send(result);
